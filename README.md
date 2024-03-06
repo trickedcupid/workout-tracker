@@ -37,14 +37,14 @@ WorkoutTracker is a web application designed to help users record and manage the
 4. Start the backend server:
 
    ```
-   npm start
+   npm run dev
    ```
 
 5. Start the frontend development server:
 
    ```
    cd ../frontend
-   npm start
+   npm run start
    ```
 
 6. Open your browser and visit `http://localhost:3000` to use WorkoutTracker.
