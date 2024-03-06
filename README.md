@@ -6,10 +6,8 @@ WorkoutTracker is a web application designed to help users record and manage the
 
 - **Workout Logging**: Easily add and delete workouts that you've completed on a specific day.
 - **User-Friendly Interface**: Intuitive interface for effortless navigation and interaction.
-- **Responsive Design**: Optimized for various screen sizes, allowing you to log workouts from any device.
 - **Secure Authentication**: User authentication ensures data privacy and security.
 - **Customizable Workouts**: Add custom exercises and routines tailored to your fitness goals.
-- **Data Visualization**: Visualize your workout history and progress over time with insightful charts and graphs.
 
 ## Installation
 
