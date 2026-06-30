@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useWorkoutsContext } from "../hooks/useWorkoutContext";
 
-const WorkoutForm = () => {
+const WorkoutForm = ({ workout, onDone }) => {
     const { dispatch } = useWorkoutsContext()
-    const [title, setTitle] = useState('')
-    const [reps, setReps] = useState('')
-    const [load, setLoad] = useState('')
+    const isEditing = Boolean(workout)
+
+    const [title, setTitle] = useState(workout ? workout.title : '')
+    const [reps, setReps] = useState(workout ? workout.reps : '')
+    const [load, setLoad] = useState(workout ? workout.load : '')
     const [error, setError] = useState(null)
     const [emptyFields, setEmptyFields] = useState([])
 
@@ -13,12 +15,15 @@ const WorkoutForm = () => {
         //To prevent refresh
         e.preventDefault()
 
-        const workout = {title, load, reps}
+        const payload = { title, load, reps }
 
-        const response = await fetch('/api/workouts', {
-            method: 'POST',
-            body: JSON.stringify(workout),
-            headers:{
+        const url = isEditing ? '/api/workouts/' + workout._id : '/api/workouts'
+        const method = isEditing ? 'PATCH' : 'POST'
+
+        const response = await fetch(url, {
+            method,
+            body: JSON.stringify(payload),
+            headers: {
                 "Content-Type": 'application/json'
             }
         })
@@ -26,36 +31,44 @@ const WorkoutForm = () => {
 
         if (!response.ok) {
             setError(json.error)
-            setEmptyFields(json.emptyFields)
+            setEmptyFields(json.emptyFields || [])
         }
         if (response.ok) {
-            setTitle('')
-            setReps('')
-            setLoad('')
             setError(null)
             setEmptyFields([])
-            console.log("New Workout added", json)
-            dispatch({type: 'CREATE_WORKOUT', payload: json})
+
+            if (isEditing) {
+                dispatch({ type: 'UPDATE_WORKOUT', payload: json })
+                if (onDone) onDone()
+            } else {
+                setTitle('')
+                setReps('')
+                setLoad('')
+                dispatch({ type: 'CREATE_WORKOUT', payload: json })
+            }
         }
     }
 
-    return ( 
-        <form  className="create" onSubmit={handleSubmit}> 
-            <h3>Add a New Workout:</h3>
+    return (
+        <form className="create" onSubmit={handleSubmit}>
+            <h3>{isEditing ? 'Edit Workout:' : 'Add a New Workout:'}</h3>
 
             <label>Exercise Title:</label>
-            <input type="text" onChange ={(e) => setTitle(e.target.value)} value={title} className={emptyFields.includes('title') ? 'error' : ''} />
+            <input type="text" onChange={(e) => setTitle(e.target.value)} value={title} className={emptyFields.includes('title') ? 'error' : ''} />
 
             <label>Load(kg):</label>
-            <input type="number" onChange ={(e) => setLoad(e.target.value)} value={load} className={emptyFields.includes('load') ? 'error' : ''}/>
+            <input type="number" onChange={(e) => setLoad(e.target.value)} value={load} className={emptyFields.includes('load') ? 'error' : ''} />
 
             <label>Reps:</label>
-            <input type="number" onChange ={(e) => setReps(e.target.value)} value={reps} className={emptyFields.includes('reps') ? 'error' : ''}/>
+            <input type="number" onChange={(e) => setReps(e.target.value)} value={reps} className={emptyFields.includes('reps') ? 'error' : ''} />
 
-            <button>Add Workout</button>
+            <button>{isEditing ? 'Save Changes' : 'Add Workout'}</button>
+            {isEditing && (
+                <button type="button" className="cancel" onClick={onDone}>Cancel</button>
+            )}
             {error && <div className="error">{error}</div>}
         </form>
-     );
+    );
 }
- 
+
 export default WorkoutForm;
